@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>주식 시뮬레이션(HARD)</title>
+    <title>주식 시뮬레이션</title>
     <!DOCTYPE html>
     <html lang="ko">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>주식 시뮬레이션(Hard)</title>
+        <title>주식 시뮬레이션</title>
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -37,7 +37,9 @@
     box-sizing: border-box;
     margin-right: 20px;  /* 주식 사이에 여백을 추가 */
 }
-    
+            #newsList{
+                height:200px ;
+            }
             .stock button {
                 margin-left: 10px;
             }
@@ -488,7 +490,7 @@
     
             setTimeout(updatePrice, 1000);
         }
-    
+        let newsHistory = [];
         // 30초마다 대공황 또는 GDP 상승 이벤트 발생
 // 30초마다 대공황 또는 GDP 상승 이벤트 발생
 setInterval(() => {
@@ -524,21 +526,26 @@ setInterval(() => {
     
             // 뉴스 섹션에 이벤트 추가
             const newsItem = document.createElement('div');
-            newsItem.className = 'news-item';
-            newsItem.textContent = eventMessage;
-            if (eventType === 'gdpIncrease') {
-                newsItem.style.color = 'red'; // GDP 상승 시 빨간색으로 표시
-            } else {
-                newsItem.classList.add('negative'); // 대공황은 기본 색상으로
-            }
-            document.getElementById('newsList').appendChild(newsItem);
-            newsHistory.push(newsItem);
-    
-            // 최근 뉴스 5개 유지
-            if (newsHistory.length > 5) {
-                document.getElementById('newsList').removeChild(newsHistory.shift());
-            }
-        }, 3000); // 30초마다 이벤트 발생
+    newsItem.className = 'news-item';
+    newsItem.textContent = eventMessage;
+    if (eventType === 'gdpIncrease') {
+        newsItem.style.color = 'red'; // GDP 상승 시 빨간색으로 표시
+    } else {
+        newsItem.classList.add('negative'); // 대공황은 기본 색상으로
+    }
+    document.getElementById('newsList').appendChild(newsItem);
+    newsHistory.push(newsItem);
+
+    // 뉴스 항목이 5개를 초과하면 가장 오래된 항목 삭제
+    if (newsHistory.length > 5) {
+        const oldNews = newsHistory.shift(); // 배열에서 가장 오래된 항목 제거
+        if (oldNews) {
+            oldNews.remove(); // 화면에서도 삭제
+        }
+    }
+}, 3000); // 3초마다 이벤트 발생
+       
+     
     </script>
     
     
