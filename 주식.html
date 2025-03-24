@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주식 시뮬레이션</title>
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>주식 시뮬레이션</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                margin: 0;
+            }
+    
+            h1, h2, h3, h4 {
+                margin: 10px 0;
+            }
+    
+            .stock-container {
+    display: flex;
+    overflow-x: auto;  /* 가로 스크롤을 활성화 */
+    width: 100%;  /* 전체 너비 사용 */
+    white-space: nowrap;  /* 한 줄로 주식들이 나열되게 설정 */
+}
+
+.stock-wrapper {
+    display: inline-block;  /* 주식 요소들을 인라인 블록으로 설정 */
+    width: 48%;  /* 각 주식의 너비 */
+    border: 1px solid black;
+    padding: 10px;
+    margin-top: 20px;
+    box-sizing: border-box;
+    margin-right: 20px;  /* 주식 사이에 여백을 추가 */
+}
+    
+            .stock button {
+                margin-left: 10px;
+            }
+    
+            .stock input {
+                width: 50px;
+                margin-left: 10px;
+            }
+    
+            .charts {
+                display: inline-block;
+                width: 100%;
+                margin-top: 20px;
+            }
+    
+            canvas {
+                max-width: 100%;
+                height: 200px;
+            }
+    
+            #news {
+                background-color: #f4f4f4;
+                padding: 10px;
+                margin-bottom: 20px;
+                border-radius: 5px;
+                font-weight: bold;
+            }
+    
+            #recentNews {
+                margin-top: 20px;
+                max-height: 150px;
+                overflow-y: auto;
+            }
+    
+            .news-item {
+                padding: 5px;
+                margin-bottom: 5px;
+                border-bottom: 1px solid #ccc;
+            }
+    
+            .positive {
+                color: red;
+            }
+    
+            .negative {
+                color: blue;
+            }
+    
+            /* 반응형 디자인 */
+            @media (max-width: 768px) {
+                .stock-wrapper {
+                    width: 100%;
+                    margin-bottom: 20px;
+                }
+    
+                #stocks {
+                    display: block;
+                }
+    
+                canvas {
+                    height: 150px; /* 모바일에서 차트 높이를 작게 설정 */
+                }
+            }
+    
+            @media (max-width: 480px) {
+                #news {
+                    padding: 5px;
+                    font-size: 14px;
+                }
+    
+                .stock button, .stock input {
+                    font-size: 14px;
+                    padding: 5px;
+                }
+            }
+        </style>
+        <!-- Chart.js 라이브러리 추가 -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+    <body>
+        <h1>주식 시뮬레이션</h1>
+    
+        <!-- 이달의 뉴스 섹션 -->
+        <div id="news">
+            <h3>최근 사건</h3>
+            <div id="newsList"></div>
+        </div>
+    
+        <!-- 주식 시뮬레이션 -->
+        <div id="stocks" class="stock-container">
+            <!-- 주식 A와 A 차트 -->
+            <div class="stock-wrapper">
+                <h2>농담곰 생산업체 A</h2>
+                <div class="stock">
+                    <p>가격: <span id="stockA_price">10000</span> 원</p>
+                    <input type="number" id="stockA_quantity" value="1" min="1" />
+                    <button onclick="buyStock('A')">구매</button>
+                    <input type="number" id="stockA_sell_quantity" value="1" min="1" />
+                    <button onclick="sellStock('A')">판매</button>
+                    <p>보유 수량: <span id="stockA_owned">0</span> 주</p>
+                </div>
+                <h4>주식 A 가격 변화</h4>
+                <canvas id="stockA_chart"></canvas>
+            </div>
+        
+            <!-- 주식 B와 B 차트 -->
+            <div class="stock-wrapper">
+                <h2>치이카와 생산업체 B</h2>
+                <div class="stock">
+                    <p>가격: <span id="stockB_price">10000</span> 원</p>
+                    <input type="number" id="stockB_quantity" value="1" min="1" />
+                    <button onclick="buyStock('B')">구매</button>
+                    <input type="number" id="stockB_sell_quantity" value="1" min="1" />
+                    <button onclick="sellStock('B')">판매</button>
+                    <p>보유 수량: <span id="stockB_owned">0</span> 주</p>
+                </div>
+                <h4>주식 B 가격 변화</h4>
+                <canvas id="stockB_chart"></canvas>
+            </div>
+        
+            <!-- 주식 C와 C 차트 -->
+            <div class="stock-wrapper">
+                <h2>모몽가 생산업체 C</h2>
+                <div class="stock">
+                    <p>가격: <span id="stockC_price">10000</span> 원</p>
+                    <input type="number" id="stockC_quantity" value="1" min="1" />
+                    <button onclick="buyStock('C')">구매</button>
+                    <input type="number" id="stockC_sell_quantity" value="1" min="1" />
+                    <button onclick="sellStock('C')">판매</button>
+                    <p>보유 수량: <span id="stockC_owned">0</span> 주</p>
+                </div>
+                <h4>주식 C 가격 변화</h4>
+                <canvas id="stockC_chart"></canvas>
+            </div>
+        
+            <!-- 주식 D와 D 차트 -->
+            <div class="stock-wrapper">
+                <h2>고로케 생산업체 D</h2>
+                <div class="stock">
+                    <p>가격: <span id="stockD_price">10000</span> 원</p>
+                    <input type="number" id="stockD_quantity" value="1" min="1" />
+                    <button onclick="buyStock('D')">구매</button>
+                    <input type="number" id="stockD_sell_quantity" value="1" min="1" />
+                    <button onclick="sellStock('D')">판매</button>
+                    <p>보유 수량: <span id="stockD_owned">0</span> 주</p>
+                </div>
+                <h4>주식 D 가격 변화</h4>
+                <canvas id="stockD_chart"></canvas>
+            </div>
+        
+            <!-- 주식 E와 E 차트 -->
+  
+        </div>
+        
+    
+        <h3>보유 자산: <span id="balance">100000</span> 원</h3>
+        <script>
+            let balance = 100000; // 초기 자산
+            let stocksOwned = { A: 0, B: 0, C: 0, D: 0 }; // 보유 주식
+            let stockPrices = { A: 10000, B: 10000, C: 10000, D: 10000 }; // 초기 주식 가격
+        
+            // 가격 고정상태 관리
+            let eventEndTimeA = null; // A 주식에 대한 이벤트 종료 시간
+            let eventEndTimeB = null; // B 주식에 대한 이벤트 종료 시간
+            let eventEndTimeC = null; // C 주식에 대한 이벤트 종료 시간
+            let eventEndTimeD = null; // D 주식에 대한 이벤트 종료 시간
+            let eventTimerA = null; // A 주식에 대한 3초 동안 랜덤 변동
+            let eventTimerB = null; // B 주식에 대한 3초 동안 랜덤 변동
+            let eventTimerC = null; // C 주식에 대한 3초 동안 랜덤 변동
+            let eventTimerD = null; // D 주식에 대한 3초 동안 랜덤 변동
+        
+            // 그래프 초기화
+            const stockA_data = {
+                labels: [],
+                datasets: [{
+                    label: '주식 A 가격',
+                    data: [],
+                    backgroundColor: [], // 초기 색상 배열
+                }]
+            };
+        
+            const stockB_data = {
+                labels: [],
+                datasets: [{
+                    label: '주식 B 가격',
+                    data: [],
+                    backgroundColor: [], // 초기 색상 배열
+                }]
+            };
+        
+            const stockC_data = {
+                labels: [],
+                datasets: [{
+                    label: '주식 C 가격',
+                    data: [],
+                    backgroundColor: [], // 초기 색상 배열
+                }]
+            };
+        
+            const stockD_data = {
+                labels: [],
+                datasets: [{
+                    label: '주식 D 가격',
+                    data: [],
+                    backgroundColor: [], // 초기 색상 배열
+                }]
+            };
+        
+            const stockA_chart = new Chart(document.getElementById('stockA_chart'), {
+                type: 'bar',
+                data: stockA_data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `현재 가격: ${stockPrices.A} 원`, // 차트 제목에 가격 표시
+                            font: { size: 16 }
+                        },
+                    },
+                    scales: {
+                        x: { type: 'linear', position: 'bottom' }
+                    }
+                }
+            });
+        
+            const stockB_chart = new Chart(document.getElementById('stockB_chart'), {
+                type: 'bar',
+                data: stockB_data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `현재 가격: ${stockPrices.B} 원`, // 차트 제목에 가격 표시
+                            font: { size: 16 }
+                        },
+                    },
+                    scales: {
+                        x: { type: 'linear', position: 'bottom' }
+                    }
+                }
+            });
+        
+            const stockC_chart = new Chart(document.getElementById('stockC_chart'), {
+                type: 'bar',
+                data: stockC_data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `현재 가격: ${stockPrices.C} 원`, // 차트 제목에 가격 표시
+                            font: { size: 16 }
+                        },
+                    },
+                    scales: {
+                        x: { type: 'linear', position: 'bottom' }
+                    }
+                }
+            });
+        
+            const stockD_chart = new Chart(document.getElementById('stockD_chart'), {
+                type: 'bar',
+                data: stockD_data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `현재 가격: ${stockPrices.D} 원`, // 차트 제목에 가격 표시
+                            font: { size: 16 }
+                        },
+                    },
+                    scales: {
+                        x: { type: 'linear', position: 'bottom' }
+                    }
+                }
+            });
+        
+            function updateBalance() {
+                document.getElementById('balance').textContent = balance;
+            }
+        
+            function updateStockPrice(stock, price) {
+                document.getElementById(`stock${stock}_price`).textContent = price;
+                const chart = stock === 'A' ? stockA_chart : (stock === 'B' ? stockB_chart : (stock === 'C' ? stockC_chart : stockD_chart));
+                chart.options.plugins.title.text = `현재 가격: ${price} 원`; // 차트 제목 업데이트
+                chart.update();
+            }
+        
+            function updateStockOwned(stock) {
+                document.getElementById(`stock${stock}_owned`).textContent = stocksOwned[stock];
+            }
+        
+            function buyStock(stock) {
+                const price = stockPrices[stock];
+                const quantity = parseInt(document.getElementById(`stock${stock}_quantity`).value);
+                const totalCost = price * quantity;
+        
+                if (balance >= totalCost) {
+                    balance -= totalCost;
+                    stocksOwned[stock] += quantity;
+                    updateBalance();
+                    updateStockOwned(stock);
+                } else {
+                    alert("자금이 부족합니다.");
+                }
+            }
+        
+            function sellStock(stock) {
+                const price = stockPrices[stock];
+                const quantity = parseInt(document.getElementById(`stock${stock}_sell_quantity`).value);
+                const totalRevenue = price * quantity;
+        
+                if (stocksOwned[stock] >= quantity) {
+                    balance += totalRevenue;
+                    stocksOwned[stock] -= quantity;
+                    updateBalance();
+                    updateStockOwned(stock);
+                } else {
+                    alert("보유한 주식이 부족합니다.");
+                }
+            }
+        
+            function updateStockPrices() {
+                // 주식 A 가격 업데이트
+                let priceA = stockPrices.A + (Math.floor(Math.random() * 2001) - 1000); // -1000 ~ 1000 사이의 값
+                priceA = Math.max(100, Math.min(100000, priceA)); // 100원 이상, 100000원 이하로 제한
+                const prevPriceA = stockPrices.A;
+                stockPrices.A = priceA;
+        
+                // 색상 변경: 이전 가격보다 높으면 빨간색, 낮으면 파란색
+                const colorA = priceA > prevPriceA ? 'rgba(255, 99, 132, 0.6)' : 'rgba(54, 162, 235, 0.6)';
+                stockA_data.datasets[0].backgroundColor.push(colorA);
+        
+                updateStockPrice('A', priceA);
+                stockA_data.labels.push(stockA_data.labels.length);
+                stockA_data.datasets[0].data.push(priceA);
+                stockA_chart.update();
+        
+                // 주식 B 가격 업데이트
+                let priceB = stockPrices.B + (Math.floor(Math.random() * 2001) - 1000); // -1000 ~ 1000 사이의 값
+                priceB = Math.max(100, Math.min(100000, priceB)); // 100원 이상, 100000원 이하로 제한
+                const prevPriceB = stockPrices.B;
+                stockPrices.B = priceB;
+        
+                // 색상 변경: 이전 가격보다 높으면 빨간색, 낮으면 파란색
+                const colorB = priceB > prevPriceB ? 'rgba(255, 99, 132, 0.6)' : 'rgba(54, 162, 235, 0.6)';
+                stockB_data.datasets[0].backgroundColor.push(colorB);
+        
+                updateStockPrice('B', priceB);
+                stockB_data.labels.push(stockB_data.labels.length);
+                stockB_data.datasets[0].data.push(priceB);
+                stockB_chart.update();
+        
+                // 주식 C 가격 업데이트
+                let priceC = stockPrices.C + (Math.floor(Math.random() * 2001) - 1000); // -1000 ~ 1000 사이의 값
+                priceC = Math.max(100, Math.min(100000, priceC)); // 100원 이상, 100000원 이하로 제한
+                const prevPriceC = stockPrices.C;
+                stockPrices.C = priceC;
+        
+                // 색상 변경: 이전 가격보다 높으면 빨간색, 낮으면 파란색
+                const colorC = priceC > prevPriceC ? 'rgba(255, 99, 132, 0.6)' : 'rgba(54, 162, 235, 0.6)';
+                stockC_data.datasets[0].backgroundColor.push(colorC);
+        
+                updateStockPrice('C', priceC);
+                stockC_data.labels.push(stockC_data.labels.length);
+                stockC_data.datasets[0].data.push(priceC);
+                stockC_chart.update();
+        
+                // 주식 D 가격 업데이트
+                let priceD = stockPrices.D + (Math.floor(Math.random() * 2001) - 1000); // -1000 ~ 1000 사이의 값
+                priceD = Math.max(100, Math.min(100000, priceD)); // 100원 이상, 100000원 이하로 제한
+                const prevPriceD = stockPrices.D;
+                stockPrices.D = priceD;
+        
+                // 색상 변경: 이전 가격보다 높으면 빨간색, 낮으면 파란색
+                const colorD = priceD > prevPriceD ? 'rgba(255, 99, 132, 0.6)' : 'rgba(54, 162, 235, 0.6)';
+                stockD_data.datasets[0].backgroundColor.push(colorD);
+        
+                updateStockPrice('D', priceD);
+                stockD_data.labels.push(stockD_data.labels.length);
+                stockD_data.datasets[0].data.push(priceD);
+                stockD_chart.update();
+            }
+        
+            setInterval(updateStockPrices, 2000); // 2초마다 주식 가격 업데이트
+        
+            // 뉴스 이벤트 처리 (C, D도 추가)
+          
+            
+    
+        function displayNews() {
+            let news = '';
+            const randomStock = Math.random() < 0.5 ? 'A' : 'B' ;
+            const positive = Math.random() < 0.5;
+    
+            if (randomStock === 'A') {
+                news = positive ? positiveNewsA[Math.floor(Math.random() * positiveNewsA.length)] : negativeNewsA[Math.floor(Math.random() * negativeNewsA.length)];
+            } else {
+                news = positive ? positiveNewsB[Math.floor(Math.random() * positiveNewsB.length)] : negativeNewsB[Math.floor(Math.random() * negativeNewsB.length)];
+            }
+    
+            const newsItem = document.createElement('div');
+            newsItem.className = 'news-item';
+            newsItem.textContent = news;
+            newsItem.classList.add(positive ? 'positive' : 'negative');
+    
+    
+        }
+    
+        // 5초마다 뉴스 업데이트
+        setInterval(displayNews, 5000);
+    
+        function startStockEvent(stock, isPositive) {
+            // 이벤트가 발생하면 주식 가격을 고정시키고 그 상태에서 진행
+            const endTime = Date.now() + 3000; // 3초 동안 이벤트가 지속됨
+            if (stock === 'A') {
+                eventEndTimeA = endTime;
+                eventTimerA = setInterval(() => {
+                    const currentTime = Date.now();
+                    if (currentTime >= eventEndTimeA) {
+                        clearInterval(eventTimerA);
+                        eventTimerA = null;
+                        eventEndTimeA = null;
+                    }
+                }, 100);
+            } else {
+                eventEndTimeB = endTime;
+                eventTimerB = setInterval(() => {
+                    const currentTime = Date.now();
+                    if (currentTime >= eventEndTimeB) {
+                        clearInterval(eventTimerB);
+                        eventTimerB = null;
+                        eventEndTimeB = null;
+                    }
+                }, 100);
+            }
+    
+            const updatePrice = function() {
+                if (isPositive) {
+                    stockPrices[stock] += Math.floor(Math.random() * 300) + 100;
+                } else {
+                    stockPrices[stock] -= Math.floor(Math.random() * 300) + 100;
+                }
+            };
+    
+            setTimeout(updatePrice, 1000);
+        }
+    
+        // 30초마다 대공황 또는 GDP 상승 이벤트 발생
+// 30초마다 대공황 또는 GDP 상승 이벤트 발생
+setInterval(() => {
+    const eventType = Math.random() < 0.5 ? 'recession' : 'gdpIncrease';
+    let eventMessage = '';
+    
+    if (eventType === 'recession') {
+        // 대공황: 모든 주식 가격을 급격히 하락 (50% 하락)
+        stockPrices.A = Math.max(100, Math.floor(stockPrices.A * 0.5)); // 50% 하락
+        stockPrices.B = Math.max(100, Math.floor(stockPrices.B * 0.5)); // 50% 하락
+        stockPrices.C = Math.max(100, Math.floor(stockPrices.C * 0.5)); // 50% 하락
+        stockPrices.D = Math.max(100, Math.floor(stockPrices.D * 0.5)); // 50% 하락
+        
+        eventMessage = "대공황이 발생했습니다! 주식 시장이 급락하고 있습니다.";
+    } else {
+        // GDP 상승: 모든 주식 가격을 상승 (20% 상승)
+        stockPrices.A = Math.floor(stockPrices.A * 1.5); // 20% 상승
+        stockPrices.B = Math.floor(stockPrices.B * 1.5); // 20% 상승
+        stockPrices.C = Math.floor(stockPrices.C * 1.5); // 20% 상승
+        stockPrices.D = Math.floor(stockPrices.D * 1.5); // 20% 상승
+       
+        eventMessage = "GDP가 상승했습니다! 주식 시장이 상승하고 있습니다.";
+    }
+
+    // 가격을 업데이트하고 차트에 반영
+    updateStockPrice('A', stockPrices.A);
+    updateStockPrice('B', stockPrices.B);
+    updateStockPrice('C', stockPrices.C);
+    updateStockPrice('D', stockPrices.D);
+
+
+
+    
+            // 뉴스 섹션에 이벤트 추가
+            const newsItem = document.createElement('div');
+            newsItem.className = 'news-item';
+            newsItem.textContent = eventMessage;
+            if (eventType === 'gdpIncrease') {
+                newsItem.style.color = 'red'; // GDP 상승 시 빨간색으로 표시
+            } else {
+                newsItem.classList.add('negative'); // 대공황은 기본 색상으로
+            }
+            document.getElementById('newsList').appendChild(newsItem);
+            newsHistory.push(newsItem);
+    
+            // 최근 뉴스 5개 유지
+            if (newsHistory.length > 5) {
+                document.getElementById('newsList').removeChild(newsHistory.shift());
+            }
+        }, 10000); // 30초마다 이벤트 발생
+    </script>
+    
+    
+    
+    
+</body>
+</html>
