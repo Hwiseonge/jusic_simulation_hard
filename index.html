@@ -120,14 +120,16 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
     <body>
-        <h1>주식 시뮬레이션(hard)</h1>
+        <h3>실시간 타이머: <span id="timer">00:00:00</span></h3>
+
+        <h1>주식 시뮬레이션(normal)</h1>
     
         <!-- 이달의 뉴스 섹션 -->
         <div id="news">
             <h3>최근 사건</h3>
             <div id="newsList"></div>
         </div>
-      <h3>보유 자산: <span id="balance">100000</span> 원</h3>
+        <h3>현재 보유 자산: <span id="balance">100000</span> 원</h3>
         <!-- 주식 시뮬레이션 -->
         <div id="stocks" class="stock-container">
             <!-- 주식 A와 A 차트 -->
@@ -193,10 +195,12 @@
             <!-- 주식 E와 E 차트 -->
   
         </div>
-        
+        <h3>남은 시간: <span id="timer">00:10</span></h3>
     
-      
+       
         <script>
+
+    
             let balance = 100000; // 초기 자산
             let stocksOwned = { A: 0, B: 0, C: 0, D: 0 }; // 보유 주식
             let stockPrices = { A: 10000, B: 10000, C: 10000, D: 10000 }; // 초기 주식 가격
@@ -543,9 +547,36 @@ setInterval(() => {
             oldNews.remove(); // 화면에서도 삭제
         }
     }
-}, 3000); // 3초마다 이벤트 발생
+}, 2000); // 30초마다 이벤트 발생
        
-     
+let timeLeft = 90; // 90초 설정
+
+
+    function updateTimer() {
+        const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+        const seconds = String(timeLeft % 60).padStart(2, '0');
+        document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            endSimulation();
+        } else {
+            timeLeft--;
+        }
+    }
+
+    function endSimulation() {
+        document.body.innerHTML = `
+            <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                        font-size: 24px; font-weight: bold; text-align: center;">
+                <h3>시뮬레이션 종료 하드모드 </h3>
+                <h3>최종 보유 자산: ${balance} 원</h3>
+            </div>
+        `;
+    }
+
+    const timerInterval = setInterval(updateTimer, 1000);
+    updateTimer(); // 즉시 실행
     </script>
     
     
