@@ -122,7 +122,7 @@
     <body>
         <h3>실시간 타이머: <span id="timer">00:00:00</span></h3>
 
-        <h1>주식 시뮬레이션(normal)</h1>
+        <h1>주식 시뮬레이션(hard)</h1>
     
         <!-- 이달의 뉴스 섹션 -->
         <div id="news">
@@ -195,7 +195,7 @@
             <!-- 주식 E와 E 차트 -->
   
         </div>
-        <h3>남은 시간: <span id="timer">00:10</span></h3>
+ 
     
        
         <script>
@@ -431,7 +431,7 @@
                 stockD_chart.update();
             }
         
-            setInterval(updateStockPrices, 2000); // 2초마다 주식 가격 업데이트
+            setInterval(updateStockPrices, 3000); // 2초마다 주식 가격 업데이트
         
             // 뉴스 이벤트 처리 (C, D도 추가)
           
@@ -547,7 +547,7 @@ setInterval(() => {
             oldNews.remove(); // 화면에서도 삭제
         }
     }
-}, 2000); // 30초마다 이벤트 발생
+}, 3000); // 30초마다 이벤트 발생
        
 let timeLeft = 90; // 90초 설정
 
@@ -569,7 +569,7 @@ let timeLeft = 90; // 90초 설정
         document.body.innerHTML = `
             <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
                         font-size: 24px; font-weight: bold; text-align: center;">
-                <h3>시뮬레이션 종료 하드모드 </h3>
+                <h3>시뮬레이션 종료 노말모드 </h3>
                 <h3>최종 보유 자산: ${balance} 원</h3>
             </div>
         `;
